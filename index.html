@@ -733,6 +733,7 @@
                         <select id="houseStatus" style="font-size: 1.1rem; text-align: center; padding: 1.2rem;">
                             <option value="">-- Select an option --</option>
                             <option value="have">I already have a house (Need roommate)</option>
+                            <option value="available">I don't have a house (Available as roommate)</option>
                             <option value="looking">I'm looking for a house (Need accommodation)</option>
                             <option value="selling">I want to sell something</option>
                         </select>
@@ -1058,6 +1059,8 @@
 
             const statusText = formData.houseStatus === 'have' ? 
                 'Already has a house (Looking for roommate)' : 
+                formData.houseStatus === 'available' ?
+                'Available as roommate (No house yet)' :
                 'Looking for a house (Need accommodation)';
 
             let recipientNumber;
