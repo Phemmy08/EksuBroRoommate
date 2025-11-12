@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eksu Bro - Your All-in-One EKSU Student Hub</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-   <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <!-- Navigation -->
@@ -67,7 +67,7 @@
                     <div class="service-icon">🧺</div>
                     <h3>Laundry Services</h3>
                     <p>Professional laundry and dry cleaning services for busy students. Fresh clothes, hassle-free!</p>
-                    <a href="https://eksubrolaundry.vercel.app/" target="_blank" class="service-link">Visit Laundry Site</a>
+                    <a href="https://eksulaundry.com" target="_blank" class="service-link">Visit Laundry Site</a>
                 </div>
 
                 <div class="service-card">
@@ -96,7 +96,33 @@
             </div>
 
             <div class="form-container">
-                <form id="roommateForm">
+                <!-- Initial Question -->
+                <div id="initialQuestion">
+                    <h3 style="text-align: center; color: var(--dark); margin-bottom: 2rem; font-size: 1.8rem;">
+                        Let's Get Started!
+                    </h3>
+                    <div class="form-group">
+                        <label for="houseStatus" style="font-size: 1.2rem; text-align: center; display: block;">
+                            Do you already have a house or are you looking for one?
+                        </label>
+                        <select id="houseStatus" style="font-size: 1.1rem; text-align: center; padding: 1.2rem;">
+                            <option value="">-- Select an option --</option>
+                            <option value="have">I already have a house (Need roommate)</option>
+                            <option value="looking">I'm looking for a house (Need accommodation)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Main Form (Hidden initially) -->
+                <form id="roommateForm" style="display: none;">
+                    <div style="text-align: center; margin-bottom: 2rem;">
+                        <button type="button" id="backBtn" style="background: #6b7280; color: white; border: none; padding: 0.5rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                            ← Back
+                        </button>
+                    </div>
+
+                    <input type="hidden" id="houseStatusValue" name="houseStatus">
+
                     <div class="form-row">
                         <div class="form-group">
                             <label for="fullName">Full Name *</label>
@@ -233,6 +259,35 @@
             });
         });
 
+        // Initial Question Handler
+        const houseStatus = document.getElementById('houseStatus');
+        const initialQuestion = document.getElementById('initialQuestion');
+        const roommateForm = document.getElementById('roommateForm');
+        const houseStatusValue = document.getElementById('houseStatusValue');
+        const backBtn = document.getElementById('backBtn');
+
+        houseStatus.addEventListener('change', function() {
+            if (this.value) {
+                houseStatusValue.value = this.value;
+                initialQuestion.style.display = 'none';
+                roommateForm.style.display = 'block';
+                
+                // Smooth scroll animation
+                roommateForm.style.opacity = '0';
+                setTimeout(() => {
+                    roommateForm.style.transition = 'opacity 0.5s ease';
+                    roommateForm.style.opacity = '1';
+                }, 50);
+            }
+        });
+
+        backBtn.addEventListener('click', function() {
+            roommateForm.style.display = 'none';
+            initialQuestion.style.display = 'block';
+            houseStatus.value = '';
+            roommateForm.reset();
+        });
+
         // Form Submission
         document.getElementById('roommateForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -241,6 +296,7 @@
             loading.classList.add('active');
 
             const formData = {
+                houseStatus: document.getElementById('houseStatusValue').value,
                 fullName: document.getElementById('fullName').value,
                 gender: document.getElementById('gender').value,
                 location: document.getElementById('location').value,
@@ -248,6 +304,11 @@
                 preferences: document.getElementById('preferences').value,
                 whatsapp: document.getElementById('whatsapp').value
             };
+
+            // Get status text
+            const statusText = formData.houseStatus === 'have' ? 
+                'Already has a house (Looking for roommate)' : 
+                'Looking for a house (Need accommodation)';
 
             // Determine recipient based on gender
             let recipientNumber;
@@ -259,6 +320,7 @@
 
             // Create WhatsApp message
             const message = `*New Roommate Application - Eksu Bro*%0A%0A` +
+                `*Status:* ${statusText}%0A` +
                 `*Name:* ${encodeURIComponent(formData.fullName)}%0A` +
                 `*Gender:* ${formData.gender}%0A` +
                 `*Location/Hostel:* ${encodeURIComponent(formData.location)}%0A` +
