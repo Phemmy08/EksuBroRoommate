@@ -768,13 +768,32 @@
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="location">Location / Hostel *</label>
-                            <input type="text" id="location" name="location" placeholder="e.g., Iworoko, Adebayo" required>
+                            <label for="religion">Religion *</label>
+                            <select id="religion" name="religion" required>
+                                <option value="">Select Religion</option>
+                                <option value="Christianity">Christianity</option>
+                                <option value="Islam">Islam</option>
+                                <option value="Traditional">Traditional</option>
+                                <option value="Other">Other</option>
+                                <option value="Prefer not to say">Prefer not to say</option>
+                            </select>
                         </div>
 
                         <div class="form-group">
-                            <label for="budget">Budget Range *</label>
+                            <label for="location">Location / Hostel *</label>
+                            <input type="text" id="location" name="location" placeholder="e.g., Iworoko, Adebayo" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="budget">Budget Range(Amount you're willing to contribute personally) *</label>
                             <input type="text" id="budget" name="budget" placeholder="e.g., ₦50,000 - ₦80,000" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="resumptionDate">When are you resuming? *</label>
+                            <input type="text" id="resumptionDate" name="resumptionDate" placeholder="e.g., January 2025, Next week" required>
                         </div>
                     </div>
 
@@ -786,6 +805,14 @@
                     <div class="form-group">
                         <label for="whatsapp">WhatsApp Number *</label>
                         <input type="tel" id="whatsapp" name="whatsapp" placeholder="e.g., +2348012345678" required>
+                    </div>
+
+                    <div class="form-group" id="houseVideoSection" style="display: none;">
+                        <label style="display: block; margin-bottom: 0.5rem;">Upload House Video *</label>
+                        <input type="file" id="houseVideo" name="houseVideo" accept="video/*" style="padding: 0.8rem;">
+                        <p style="font-size: 0.85rem; color: #6b7280; margin-top: 0.5rem;">
+                            🎥 Please upload a video showing the house (You'll send this via WhatsApp after form submission)
+                        </p>
                     </div>
 
                     <button type="submit" class="submit-btn">
@@ -1000,6 +1027,7 @@
         const houseStatusValue = document.getElementById('houseStatusValue');
         const backBtn = document.getElementById('backBtn');
         const backBtnSelling = document.getElementById('backBtnSelling');
+        const houseVideoSection = document.getElementById('houseVideoSection');
 
         houseStatus.addEventListener('change', function() {
             if (this.value) {
@@ -1017,6 +1045,13 @@
                     initialQuestion.style.display = 'none';
                     roommateForm.style.display = 'block';
                     
+                    // Show video section only if user has a house
+                    if (this.value === 'have') {
+                        houseVideoSection.style.display = 'block';
+                    } else {
+                        houseVideoSection.style.display = 'none';
+                    }
+                    
                     roommateForm.style.opacity = '0';
                     setTimeout(() => {
                         roommateForm.style.transition = 'opacity 0.5s ease';
@@ -1031,6 +1066,7 @@
             initialQuestion.style.display = 'block';
             houseStatus.value = '';
             roommateForm.reset();
+            houseVideoSection.style.display = 'none';
         });
 
         backBtnSelling.addEventListener('click', function() {
@@ -1051,8 +1087,10 @@
                 houseStatus: document.getElementById('houseStatusValue').value,
                 fullName: document.getElementById('fullName').value,
                 gender: document.getElementById('gender').value,
+                religion: document.getElementById('religion').value,
                 location: document.getElementById('location').value,
                 budget: document.getElementById('budget').value,
+                resumptionDate: document.getElementById('resumptionDate').value,
                 preferences: document.getElementById('preferences').value,
                 whatsapp: document.getElementById('whatsapp').value
             };
@@ -1070,23 +1108,37 @@
                 recipientNumber = '2348147356424';
             }
 
-            const message = `*New Roommate Application - Eksu Bro*%0A%0A` +
+            let message = `*New Roommate Application - Eksu Bro*%0A%0A` +
                 `*Status:* ${statusText}%0A` +
                 `*Name:* ${encodeURIComponent(formData.fullName)}%0A` +
                 `*Gender:* ${formData.gender}%0A` +
+                `*Religion:* ${formData.religion}%0A` +
                 `*Location/Hostel:* ${encodeURIComponent(formData.location)}%0A` +
                 `*Budget Range:* ${encodeURIComponent(formData.budget)}%0A` +
+                `*Resumption Date:* ${encodeURIComponent(formData.resumptionDate)}%0A` +
                 `*Lifestyle Preferences:* ${encodeURIComponent(formData.preferences)}%0A` +
-                `*WhatsApp Number:* ${formData.whatsapp}%0A%0A` +
-                `_Submitted via Eksu Bro Roommate Finder_`;
+                `*WhatsApp Number:* ${formData.whatsapp}%0A%0A`;
+
+            if (formData.houseStatus === 'have') {
+                message += `_📹 Note: Please send the house video in the next message_`;
+            } else {
+                message += `_Submitted via Eksu Bro Roommate Finder_`;
+            }
 
             setTimeout(() => {
                 const whatsappUrl = `https://wa.me/${recipientNumber}?text=${message}`;
                 window.open(whatsappUrl, '_blank');
                 
                 loading.classList.remove('active');
-                alert('✅ Application submitted! You will be redirected to WhatsApp to complete your submission.');
+                
+                if (formData.houseStatus === 'have') {
+                    alert('✅ Application submitted! Please send the house video in the WhatsApp chat that just opened.');
+                } else {
+                    alert('✅ Application submitted! You will be redirected to WhatsApp to complete your submission.');
+                }
+                
                 this.reset();
+                houseVideoSection.style.display = 'none';
             }, 1000);
         });
 
